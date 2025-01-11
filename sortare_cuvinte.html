@@ -215,37 +215,6 @@
             generateWords(letter);
         }
 
-        function enableTouchDrag(wordElement) {
-            wordElement.addEventListener("touchstart", (e) => {
-                const touch = e.touches[0];
-                wordElement.style.position = "absolute";
-                wordElement.style.zIndex = "1000";
-                moveAt(touch.pageX, touch.pageY);
-
-                function moveAt(pageX, pageY) {
-                    wordElement.style.left = pageX - wordElement.offsetWidth / 2 + "px";
-                    wordElement.style.top = pageY - wordElement.offsetHeight / 2 + "px";
-                }
-
-                function onTouchMove(event) {
-                    const touch = event.touches[0];
-                    moveAt(touch.pageX, touch.pageY);
-                }
-
-                document.addEventListener("touchmove", onTouchMove);
-
-                wordElement.addEventListener("touchend", () => {
-                    document.removeEventListener("touchmove", onTouchMove);
-                    wordElement.style.position = "";
-                    wordElement.style.zIndex = "";
-                    const dropZone = document.elementFromPoint(touch.pageX, touch.pageY);
-                    if (dropZone && dropZone.classList.contains("drop-zone")) {
-                        handleDrop(wordElement.textContent, dropZone.getAttribute("data-position"), dropZone);
-                    }
-                }, { once: true });
-            });
-        }
-
         function generateWords(letter) {
             wordsContainer.innerHTML = "";
             const words = exercises[letter];
@@ -259,7 +228,6 @@
                     e.dataTransfer.setData("text", word);
                 });
                 
-                enableTouchDrag(wordElement);
 
                 wordsContainer.appendChild(wordElement);
             });
