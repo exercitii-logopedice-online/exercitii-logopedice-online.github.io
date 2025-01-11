@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completează Cuvântul</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 200px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .word {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .letter-input {
+            font-size: 1.5em;
+            padding: 10px;
+            width: 50px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .letter-input:focus {
+            border-color: #4a90e2;
+        }
+        .submit-button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .submit-button:hover {
+            background: #388e3c;
+        }
+        .feedback {
+            font-size: 1.5em;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .word {
+                font-size: 1.5em;
+            }
+            .letter-input {
+                width: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Completează Cuvântul</h1>
+    <p>Adaugă litera/literele lipsă pentru a forma cuvântul corect.</p>
+    <div class="game-container">
+        <div class="image-container" id="image-container">
+            <img id="word-image">
+        </div>
+        <div class="word" id="word">M_șină</div>
+        <div class="input-container" id="input-container"></div>
+        <button class="submit-button" onclick="checkAnswer()">Verifică</button>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <audio id="correct-sound" src="sunete/correct.mp3"></audio>
+    <audio id="incorrect-sound" src="sunete/incorrect.mp3"></audio>
+
+    <script>
+        const words = [
+            { question: "m_șină", answer: "a", image: "imagini/masina.png" },
+            { question: "țe_toasă", answer: "s", image: "imagini/testoasa.png" },
+            { question: "flut_re", answer: "u", image: "imagini/fluture.png" },
+            { question: "alb_nă", answer: "i", image: "imagini/albina.png" },
+            { question: "pis_că", answer: "i", image: "imagini/pisica.png" },
+            { question: "că_el", answer: "ț", image: "imagini/catel.png" },
+            { question: "_ufniță", answer: "b", image: "imagini/bufnita.png" },
+            { question: "_ață", answer: "r", image: "imagini/rata.png" },
+            { question: "r_bot", answer: "o", image: "imagini/robot.png" },
+            { question: "av_on", answer: "i", image: "imagini/avion.png" },
+            { question: "broa_că", answer: "s", image: "imagini/broasca.png" },
+            { question: "b_lon", answer: "a", image: "imagini/balon.png" },
+            { question: "_asă", answer: "c", image: "imagini/casa.png" },
+            { question: "ba_ane", answer: "n", image: "imagini/banane.png" },
+        ];
+
+        let currentWordIndex = 0;
+
+        const wordElement = document.getElementById("word");
+        const imageElement = document.getElementById("word-image");
+        const inputContainer = document.getElementById("input-container");
+        const feedbackElement = document.getElementById("feedback");
+        const correctSound = document.getElementById("correct-sound");
+        const incorrectSound = document.getElementById("incorrect-sound");
+
+        function loadWord() {
+            const currentWord = words[currentWordIndex];
+            wordElement.textContent = currentWord.question;
+            imageElement.src = currentWord.image;
+            inputContainer.innerHTML = "";
+
+            for (let i = 0; i < currentWord.answer.length; i++) {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.maxLength = 1;
+                input.classList.add("letter-input");
+                inputContainer.appendChild(input);
+            }
+
+            feedbackElement.textContent = "";
+        }
+
+        function checkAnswer() {
+            const inputs = document.querySelectorAll(".letter-input");
+            const userAnswer = Array.from(inputs).map(input => input.value).join("").toLowerCase();
+
+            const correctAnswer = words[currentWordIndex].answer;
+
+            if (userAnswer === correctAnswer) {
+                feedbackElement.textContent = "Corect! Ai completat cuvântul.";
+                feedbackElement.style.color = "green";
+                correctSound.play();
+                nextWord();
+            } else {
+                feedbackElement.textContent = "Greșit! Încearcă din nou.";
+                feedbackElement.style.color = "red";
+                incorrectSound.play();
+            }
+        }
+
+        function nextWord() {
+            setTimeout(() => {
+                currentWordIndex = (currentWordIndex + 1) % words.length;
+                loadWord();
+            }, 2000);
+        }
+
+        // Inițializare
+        loadWord();
+    </script>
+</body>
+</html>

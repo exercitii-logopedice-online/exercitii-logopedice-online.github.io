@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suflare în baloane</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #4a90e2;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+        }
+        p {
+            font-size: 1.2em;
+            color: #555;
+        }
+        canvas {
+            border: 4px solid #4a90e2;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            background: #fff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        #status {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            p {
+                font-size: 1em;
+            }
+            canvas {
+                width: 90%;
+                height: auto;
+            }
+            #status {
+                font-size: 1em;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            p {
+                font-size: 0.9em;
+            }
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+            #status {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Suflare în baloane</h1>
+    <p>Suflă în microfon pentru a umfla balonul!</p>
+    <canvas id="balloonCanvas" width="500" height="500"></canvas>
+    <p id="status">Activare microfon...</p>
+    <audio id="ballon-pop-sound" src="sunete/balon-spart.mp3"></audio>
+
+
+    <script>
+        const canvas = document.getElementById('balloonCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusText = document.getElementById('status');
+        const ballonPop = document.getElementById("ballon-pop-sound");
+
+        let balloonSize = 20;
+        let blowing = false;
+
+        // Desenare balon
+        function drawBalloon() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, balloonSize, 0, Math.PI * 2);
+            ctx.fillStyle = '#f44';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#d22';
+            ctx.stroke();
+        }
+        
+
+        // Logica de suflare (detectare sunet)
+        async function setupMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioContext = new AudioContext();
+                const analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+
+                analyser.fftSize = 256;
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                function detectBlowing() {
+                    analyser.getByteFrequencyData(dataArray);
+                    const volume = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+
+                    // Considerăm că „sufli” dacă volumul depășește 50
+                    blowing = volume > 50;
+
+                    if (blowing) {
+                        balloonSize += 1;
+                        if (balloonSize > 200) {
+                            ballonPop.play();
+                            balloonSize = 20; // Resetăm balonul
+                            blowing = false; // Resetăm suflarea
+                        }
+                    }
+
+                    drawBalloon();
+                    requestAnimationFrame(detectBlowing);
+                }
+
+                statusText.textContent = "Microfon activ! Suflă pentru a umfla balonul!";
+                statusText.style.color = "#28a745";
+                detectBlowing();
+            } catch (error) {
+                statusText.textContent = "Nu s-a putut accesa microfonul: " + error.message;
+                statusText.style.color = "#dc3545";
+            }
+        }
+
+        drawBalloon();
+        setupMicrophone();
+    </script>
+</body>
+</html>

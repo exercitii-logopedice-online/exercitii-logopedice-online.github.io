@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sortare după poziția literei</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            color: #4a90e2;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .instructions {
+            margin-bottom: 25px;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        #menu, #game {
+            display: none;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .word {
+            padding: 15px 25px;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .word:hover {
+            background-color: #357abd;
+            transform: scale(1.05);
+        }
+
+        .drop-zone {
+            margin: 10px;
+            padding: 25px;
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            min-width: 200px;
+            text-align: center;
+            background-color: #fdfdfd;
+            font-size: 1.2em;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .drop-zone.correct {
+            background-color: #e6ffed;
+            border-color: #28a745;
+        }
+
+        .drop-zone.incorrect {
+            background-color: #ffe6e6;
+            border-color: #dc3545;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .menu-btn {
+            padding: 15px 30px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .menu-btn:hover {
+            background-color: #4cae4c;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .word {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+            .drop-zone {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .word {
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+            .drop-zone {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Sortare după poziția literei</h1>
+    <div id="menu">
+        <p class="instructions">Alege o literă pentru a începe exercițiul:</p>
+        <div class="container" id="menu-container"></div>
+    </div>
+
+    <div id="game">
+        <p class="instructions" id="instructions"></p>
+        <div class="container" id="words-container"></div>
+        <div class="container">
+            <div class="drop-zone" data-position="start">Începe cu litera</div>
+            <div class="drop-zone" data-position="middle">Conține litera</div>
+            <div class="drop-zone" data-position="end">Se termină cu litera</div>
+        </div>
+        <div id="feedback"></div>
+        <button class="menu-btn" onclick="showMenu()">Înapoi la meniu</button>
+    </div>
+
+    <audio id="correct-sound" src="sunete/correct.mp3"></audio>
+    <audio id="incorrect-sound" src="sunete/incorrect.mp3"></audio>
+
+    <script>
+        const exercises = {
+            "A": ["Albina", "Ardei", "Masa", "Cameră", "Franța", "Ana", "Banana"],
+            "Ă": ["Ăsta", "Ăpucare", "Ăsta-i", "Ăsta-undeva", "Ăștia"],
+            "Â": ["Âncercare", "Ândurat", "Ântâlnire", "Ântuneric", "Âmpăcat"],
+            "B": ["Banca", "Balaur", "Bas", "Banană", "Băiat", "Burtă", "Bec"],
+            "C": ["Casă", "Cană", "Ciorbă", "Cactus", "Ciupercă", "Car", "Căruță"],
+            "D": ["Dinte", "Drum", "Dor", "Dulap", "Doi", "Delfin", "Dom"],
+            "E": ["Elefant", "Est", "Epavă", "Erou", "Eșarfă", "Exemplu", "Emoție"],
+            "F": ["Foc", "Fată", "Fruct", "Fluture", "Față", "Foarfecă", "Farfurie"],
+            "G": ["Greier", "Gărgăriță", "Gândac", "Gură", "Ghețar", "Gara", "Guler"],
+            "H": ["Hamster", "Hipopotam", "Hartă", "Hrean", "Haine", "Horă", "Havuz"],
+            "I": ["Iarnă", "Iepure", "Insulă", "Iris", "Izvor", "Iglu", "Ideal"],
+            "Î": ["Împădurire", "Învățare", "Înghețată", "Înger", "Îndemn", "Împlinire"],
+            "J": ["Jazz", "Jeleu", "Jongler", "Jucărie", "Joc", "Jurnal", "Jiul"],
+            "K": ["Koala", "Kilogram", "Kiwi", "Kangur", "Ketchup", "Kimono"],
+            "L": ["Lup", "Lemn", "Leu", "Lac", "Luptă", "Lalea", "Lumină"],
+            "M": ["Mere", "Mamă", "Munte", "Masă", "Măr", "Munți", "Maimuță"],
+            "N": ["Nor", "Noapte", "Notă", "Necesar", "Navă", "Nisip", "Număr"],
+            "O": ["Ou", "Omidă", "Oaie", "Ocean", "Obiect", "Oraș", "Oră"],
+            "P": ["Paie", "Porc", "Vopsea", "Prosop", "Paste", "Pisică", "Ploaie"],
+            "Q": ["Quasar", "Quartet", "Quartz", "Quickstep", "Quiz"],
+            "R": ["Rață", "Ramură", "Car", "Pară", "Bar", "Rege", "Ramă"],
+            "S": ["Soare", "Scară", "Pasăre", "Casetă", "Râs", "Bas", "Șarpe"],
+            "Ș": ["Șarpe", "Șapcă", "Șosea", "Șotron", "Șurub", "Șampon"],
+            "T": ["Tablă", "Tren", "Carte", "Stat", "Tată", "Țară", "Țipar"],
+            "Ț": ["Țară", "Țânțar", "Țiglă", "Țărână", "Țipar", "Țambal", "Țeavă"],
+            "U": ["Umbrelă", "Urs", "Urcare", "Univers", "Ușă", "Unic", "Urmaș"],
+            "V": ["Vulpe", "Vază", "Vin", "Val", "Vioară", "Vânt", "Varză"],
+            "W": ["WhatsApp", "Watt", "Wolfram", "Whiskey", "Website"],
+            "X": ["Xilofon", "Xenon", "Xero", "Xenofobie", "Xerox"],
+            "Y": ["Yoga", "Yoyo", "Yeti", "Yacht"],
+            "Z": ["Zebră", "Zid", "Zăpadă", "Zână", "Zambet", "Zori"]
+        };
+
+        const menuContainer = document.getElementById("menu-container");
+        const gameContainer = document.getElementById("game");
+        const menu = document.getElementById("menu");
+        const instructions = document.getElementById("instructions");
+        const wordsContainer = document.getElementById("words-container");
+        const feedback = document.getElementById("feedback");
+        const dropZones = document.querySelectorAll('.drop-zone');
+
+        const correctSound = document.getElementById("correct-sound");
+        const incorrectSound = document.getElementById("incorrect-sound");
+
+        let targetLetter = null;
+
+        function showMenu() {
+            gameContainer.style.display = "none";
+            menu.style.display = "block";
+            feedback.textContent = "";
+        }
+
+        function generateMenu() {
+            for (const letter in exercises) {
+                const button = document.createElement("button");
+                button.textContent = `Exercițiu cu litera „${letter}”`;
+                button.classList.add("menu-btn");
+                button.addEventListener("click", () => startGame(letter));
+                menuContainer.appendChild(button);
+            }
+        }
+
+        function startGame(letter) {
+            targetLetter = letter;
+            menu.style.display = "none";
+            gameContainer.style.display = "block";
+            instructions.textContent = `Trage fiecare cuvânt în zona potrivită în funcție de poziția literei „${letter}”.`;
+            generateWords(letter);
+        }
+
+        function generateWords(letter) {
+            wordsContainer.innerHTML = "";
+            const words = exercises[letter];
+            words.forEach(word => {
+                const wordElement = document.createElement("div");
+                wordElement.classList.add("word");
+                wordElement.textContent = word;
+                wordElement.draggable = true;
+
+                wordElement.addEventListener("dragstart", (e) => {
+                    e.dataTransfer.setData("text", word);
+                });
+
+                wordsContainer.appendChild(wordElement);
+            });
+        }
+
+        dropZones.forEach(zone => {
+            zone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            });
+
+            zone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                const word = e.dataTransfer.getData("text");
+                const position = zone.getAttribute("data-position");
+                handleDrop(word, position, zone);
+            });
+        });
+
+        function handleDrop(word, position, zone) {
+            const wordLower = word.toLowerCase();
+            const letterLower = targetLetter.toLowerCase();
+            let isCorrect = false;
+            const truncatedWord = wordLower.slice(1, -1);
+
+            if (position === "start" && wordLower.startsWith(letterLower)) {
+                isCorrect = true;
+            } else if (position === "middle" && truncatedWord.includes(letterLower)) {
+                isCorrect = true;
+            } else if (position === "end" && wordLower.endsWith(letterLower)) {
+                isCorrect = true;
+            }
+
+            if (isCorrect) {
+                zone.classList.add("correct");
+                correctSound.play();
+                feedback.textContent = `Corect! Cuvântul „${word}” este sortat corect.`;
+                feedback.style.color = "green";
+            } else {
+                zone.classList.add("incorrect");
+                incorrectSound.play();
+                feedback.textContent = `Greșit! Cuvântul „${word}” nu aparține acestei categorii.`;
+                feedback.style.color = "red";
+            }
+
+            setTimeout(() => {
+                zone.classList.remove("correct", "incorrect");
+                feedback.textContent = "";
+            }, 2000);
+        }
+
+        generateMenu();
+        showMenu();
+    </script>
+</body>
+</html>

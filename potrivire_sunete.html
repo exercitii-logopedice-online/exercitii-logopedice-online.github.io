@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potrivire Sunete</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #eef;
+            margin: 0;
+            padding: 0;
+        }
+        h1, p {
+            margin: 10px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            max-width: 300px;
+        }
+        .item {
+            padding: 10px;
+            background: #ddd;
+            border-radius: 10px;
+            text-align: center;
+            width: 100%;
+            max-width: 200px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .item.sound {
+            background-color: #8ecae6;
+        }
+        .item.image {
+            background-color: #f4a261;
+        }
+        .feedback {
+            position: sticky;
+            top: 0;
+            background-color: #eef;
+            z-index: 1000;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .item {
+                font-size: 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .item {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Potrivire Sunete</h1>
+    <p>Selectează o literă din stânga și imaginea corespunzătoare din dreapta (cuvinte care încep cu litera respectivă)!</p>
+    <div class="feedback" id="feedback"></div>
+    <audio id="correct-sound" src="sunete/correct.mp3"></audio>
+    <audio id="incorrect-sound" src="sunete/incorrect.mp3"></audio>
+    <audio id="letter-sound"></audio>
+
+    <div class="container">
+        <div class="column" id="sounds-container">
+            <h2>Litere</h2>
+        </div>
+        <div class="column" id="images-container">
+            <h2>Imagini</h2>
+        </div>
+    </div>
+
+    <script>
+        const correctSound = document.getElementById("correct-sound");
+        const incorrectSound = document.getElementById("incorrect-sound");
+        const letterSound = document.getElementById("letter-sound");
+
+
+
+        const data = [
+            { letter: "A", sound: "sunete/litere/a.mp3", images: ["✈️ Avion", "📌 Ac", "🐝 Albinuță"] },
+            { letter: "B", sound: "sunete/litere/b.mp3", images: ["🍪 Biscuit", "🦉 Bufniță", "🔋 Baterie"] },
+            { letter: "C", sound: "sunete/litere/c.mp3", images: ["🌈 Curcubeu", "🎁 Cadou", "🏠 Casă"] },
+            { letter: "D", sound: "sunete/litere/d.mp3", images: ["🐬 Delfin", "🚪 Dulap", "🧨 Dinamită"] },
+            { letter: "E", sound: "sunete/litere/e.mp3", images: ["🐘 Elefant", "📧 E-mail", "🧭 Est"] },
+            { letter: "F", sound: "sunete/litere/f.mp3", images: ["🔥 Foc", "⚡ Fulger", "✂️ Foarfecă"] },
+            { letter: "G", sound: "sunete/litere/g.mp3", images: ["🦗 Greiere", "🐞 Gărgăriță", "🪲 Gândac"] },
+            { letter: "H", sound: "sunete/litere/h.mp3", images: ["🐹 Hamster", "🦛 Hipopotam", "🗺️ Hartă"] },
+            { letter: "I", sound: "sunete/litere/i.mp3", images: ["❄️ Iarnă", "🐇 Iepure", "🏝️ Insulă"] },
+            { letter: "Î", sound: "sunete/litere/î.mp3", images: ["🌲 Împădurire", "🎨 Învățare", "🍦 Înghețată"] },
+            { letter: "J", sound: "sunete/litere/j.mp3", images: ["🎷 Jazz", "🍹 Jeleu", "🤹 Jongler"] },
+            { letter: "K", sound: "sunete/litere/k.mp3", images: ["🐨 Koala", "⚖️ Kilogram", "🥝 Kiwi"] },
+            { letter: "L", sound: "sunete/litere/l.mp3", images: ["🦁 Leu", "🍋 Lămâie", "🔒 Lacăt"] },
+            { letter: "M", sound: "sunete/litere/m.mp3", images: ["🖐 Mână", "🌄 Munte", "🍎 Măr"] },
+            { letter: "N", sound: "sunete/litere/n.mp3", images: ["🎶 Notă", "☢️ Nuclear", "⚉ Nasture"] },
+            { letter: "O", sound: "sunete/litere/o.mp3", images: ["🥚 Ou", "🐛 Omidă", "🐑 Oaie"] },
+            { letter: "P", sound: "sunete/litere/p.mp3", images: ["🦚 Păun", "🐱 Pisică", "🍊 Portocală"] },
+            { letter: "Q", sound: "sunete/litere/q.mp3", images: ["🌌 Quasar", "⚖️ Quintal", "⚛️ Quarc"] },
+            { letter: "R", sound: "sunete/litere/r.mp3", images: ["🚗 Roată", "💄 Ruj", "🦆 Rață"] },
+            { letter: "S", sound: "sunete/litere/s.mp3", images: ["🌞 Soare", "🍇 Struguri", "🍹 Suc"] },
+            { letter: "Ș", sound: "sunete/litere/ș.mp3", images: ["🌳 Ștejar", "🔩 Șurub", "🪛 Șurubelniță"] },
+            { letter: "T", sound: "sunete/litere/t.mp3", images: ["🚋 Tramvai", "⛏️ Târnăcop", "🪓 Topor"] },
+            { letter: "Ț", sound: "sunete/litere/ț.mp3", images: ["🎯 Țintă", "🏡 Țară", "🦟 Țânțar"] },
+            { letter: "U", sound: "sunete/litere/u.mp3", images: ["☂️ Umbrelă", "🐻 Urs", "🚪 Ușă"] },
+            { letter: "V", sound: "sunete/litere/v.mp3", images: ["🎻 Vioară", "🍷 Vin", "🌬️ Vânt"] },
+            { letter: "W", sound: "sunete/litere/w.mp3", images: ["📱 WhatsApp", "🗲 Watt", "➰ Wolfram"] },
+            { letter: "X", sound: "sunete/litere/x.mp3", images: ["🎹 Xilofon", "📄 Xerox", "⚛ Xenon"] },
+            { letter: "Y", sound: "sunete/litere/y.mp3", images: ["🎴 Yoyo", "🧘🏻‍♀️ Yoga", "☯︎ Yin Yang"] },
+            { letter: "Z", sound: "sunete/litere/z.mp3", images: ["🦓 Zebră", "🧱 Zid", "☃️ Zăpadă"] }
+        ];
+
+        const soundsContainer = document.getElementById("sounds-container");
+        const imagesContainer = document.getElementById("images-container");
+        const feedback = document.getElementById("feedback");
+
+        let selectedLetter = null;
+
+        // Randomizează array-ul
+        function shuffleArray(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        // Generare litere (coloana stângă)
+        data.forEach(item => {
+            const letterElement = document.createElement("div");
+            letterElement.className = "item sound";
+            letterElement.textContent = item.letter;
+            letterElement.setAttribute("data-letter", item.letter);
+            letterElement.setAttribute("data-sound", item.sound);
+
+            letterElement.addEventListener("click", () => {
+                selectedLetter = item.letter;
+                feedback.textContent = `Ai selectat litera: ${item.letter}`;
+                feedback.style.color = "blue";
+
+                // Redarea sunetului literei selectate
+                letterSound.src = item.sound;
+                letterSound.play();
+            });
+
+            soundsContainer.appendChild(letterElement);
+        });
+
+        // Generare imagini randomizate (coloana dreaptă)
+        const allImages = data.flatMap(item => item.images.map(img => ({ img, letter: item.letter })));
+        const shuffledImages = shuffleArray(allImages);
+
+        shuffledImages.forEach(({ img, letter }) => {
+            const imageElement = document.createElement("div");
+            imageElement.className = "item image";
+            imageElement.textContent = img;
+            imageElement.setAttribute("data-letter", letter);
+
+            imageElement.addEventListener("click", () => {
+                if (!selectedLetter) {
+                    feedback.textContent = "Selectează mai întâi o literă!";
+                    feedback.style.color = "red";
+                    incorrectSound.play(); // Sunet pentru greșeală
+                    return;
+                }
+
+                if (selectedLetter === letter) {
+                    feedback.textContent = `Corect! ${selectedLetter} se potrivește cu ${img}`;
+                    feedback.style.color = "green";
+                    correctSound.play(); // Sunet pentru corect
+                } else {
+                    feedback.textContent = `Greșit! ${selectedLetter} nu se potrivește cu ${img}`;
+                    feedback.style.color = "red";
+                    incorrectSound.play(); // Sunet pentru greșeală
+                }
+
+                selectedLetter = null; // Resetăm selecția literei
+            });
+
+            imagesContainer.appendChild(imageElement);
+        });
+    </script>
+</body>
+</html>

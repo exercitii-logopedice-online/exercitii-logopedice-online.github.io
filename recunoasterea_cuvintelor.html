@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recunoașterea Cuvintelor</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .sentence {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .word-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .word {
+            background: #8ecae6;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .word.selected {
+            background: #4caf50;
+        }
+        .word:hover {
+            transform: scale(1.1);
+        }
+        .button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background: #388e3c;
+        }
+        .feedback {
+            font-size: 1.5em;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .sentence {
+                font-size: 1.2em;
+            }
+            .word {
+                font-size: 1em;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Recunoașterea Cuvintelor</h1>
+    <p>Selectează cuvintele care conțin sunetul specificat.</p>
+    <div class="game-container">
+        <div class="sentence" id="sentence">Pisica sare peste masă.</div>
+        <div class="word-container" id="word-container"></div>
+        <button class="button" onclick="checkAnswer()">Verifică</button>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <audio id="correct-sound" src="sunete/correct.mp3"></audio>
+    <audio id="incorrect-sound" src="sunete/incorrect.mp3"></audio>
+
+    <script>
+        const sentences = [
+            { sentence: "Pisica sare peste masă.", target: "E", words: ["Pisica", "sare", "peste", "masă"] },
+            { sentence: "Albina zboară deasupra florii.", target: "A", words: ["Albina", "zboară", "deasupra", "florii"] },
+            { sentence: "Vulpea fuge prin pădure.", target: "P", words: ["Vulpea", "fuge", "prin", "pădure"] },
+            { sentence: "Băiatul râde și aleargă repede.", target: "R", words: ["Băiatul", "râde", "și", "aleargă", "repede"] },
+            { sentence: "Mărul cade din copac.", target: "M", words: ["Mărul", "cade", "din", "copac"] },
+            { sentence: "Cățelul latră în grădină.", target: "L", words: ["Cățelul", "latră", "în", "grădină"] },
+            { sentence: "Leul doarme sub copacul mare.", target: "L", words: ["Leul", "doarme", "sub", "copacul", "mare"] },
+            { sentence: "Rața se plimbă pe lac.", target: "A", words: ["Rața", "se", "plimbă", "pe", "lac"] },
+            { sentence: "Vântul bate printre copaci.", target: "T", words: ["Vântul", "bate", "printre", "copaci"] },
+            { sentence: "Zebra bea apă din râu.", target: "B", words: ["Zebra", "bea", "apă", "din", "râu"] },
+            { sentence: "Iepurele sare printre flori.", target: "R", words: ["Iepurele", "sare", "printre", "flori"] },
+            { sentence: "Fluturele zboară deasupra grădinii.", target: "F", words: ["Fluturele", "zboară", "deasupra", "grădinii"] },
+            { sentence: "Buburuza urcă pe o frunză.", target: "U", words: ["Buburuza", "urcă", "pe", "o", "frunză"] },
+            { sentence: "Peștele înoată sub apă.", target: "E", words: ["Peștele", "înoată", "sub", "apă"] },
+            { sentence: "Șarpele alunecă pe nisip.", target: "S", words: ["Șarpele", "alunecă", "pe", "nisip"] },
+            { sentence: "Copilul privește cerul albastru.", target: "C", words: ["Copilul", "privește", "cerul", "albastru"] },
+            { sentence: "Barca plutește pe lac.", target: "P", words: ["Barca", "plutește", "pe", "lac"] },
+            { sentence: "Oaia paște iarbă în câmp.", target: "A", words: ["Oaia", "paște", "iarbă", "în", "câmp"] },
+            { sentence: "Țestoasa merge încet pe nisip.", target: "T", words: ["Țestoasa", "merge", "încet", "pe", "nisip"] },
+            { sentence: "Motanul miaună în fața ușii.", target: "M", words: ["Motanul", "miaună", "în", "fața", "ușii"] },
+            { sentence: "Cioara zboară deasupra orașului.", target: "C", words: ["Cioara", "zboară", "deasupra", "orașului"] },
+            { sentence: "Elefantul calcă prin noroi.", target: "E", words: ["Elefantul", "calcă", "prin", "noroi"] },
+            { sentence: "Bufnița cântă noaptea în copac.", target: "B", words: ["Bufnița", "cântă", "noaptea", "în", "copac"] },
+            { sentence: "Fântâna strălucește în soare.", target: "F", words: ["Fântâna", "strălucește", "în", "soare"] },
+            { sentence: "Șopârla se încălzește la soare.", target: "S", words: ["Șopârla", "se", "încălzește", "la", "soare"] }
+        ];
+
+
+        let currentIndex = 0;
+
+        const sentenceElement = document.getElementById("sentence");
+        const wordContainer = document.getElementById("word-container");
+        const feedbackElement = document.getElementById("feedback");
+        const correctSound = document.getElementById("correct-sound");
+        const incorrectSound = document.getElementById("incorrect-sound");
+
+        function loadGame() {
+            const currentSentence = sentences[currentIndex];
+            sentenceElement.textContent = `Propoziția: ${currentSentence.sentence}`;
+            feedbackElement.textContent = `Caută cuvintele care conțin sunetul „${currentSentence.target}”.`;
+            feedbackElement.style.color = "blue";
+            wordContainer.innerHTML = "";
+
+            currentSentence.words.forEach(word => {
+                const wordElement = document.createElement("div");
+                wordElement.textContent = word;
+                wordElement.className = "word";
+                wordElement.addEventListener("click", () => {
+                    wordElement.classList.toggle("selected");
+                });
+                wordContainer.appendChild(wordElement);
+            });
+        }
+
+        function checkAnswer() {
+            const currentSentence = sentences[currentIndex];
+            const selectedWords = Array.from(wordContainer.querySelectorAll(".word.selected"))
+                .map(element => element.textContent);
+            const correctWords = currentSentence.words.filter(word => word.toLowerCase().includes(currentSentence.target.toLowerCase()));
+
+            if (JSON.stringify(selectedWords.sort()) === JSON.stringify(correctWords.sort())) {
+                feedbackElement.textContent = "Corect! Ai identificat toate cuvintele potrivite.";
+                feedbackElement.style.color = "green";
+                correctSound.play();
+                nextSentence();
+            } else {
+                feedbackElement.textContent = "Greșit! Încearcă din nou.";
+                feedbackElement.style.color = "red";
+                incorrectSound.play();
+            }
+        }
+
+        function nextSentence() {
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % sentences.length;
+                loadGame();
+            }, 2000);
+        }
+
+        // Inițializare joc
+        loadGame();
+    </script>
+</body>
+</html>

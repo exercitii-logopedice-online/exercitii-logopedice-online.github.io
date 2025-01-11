@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repetare Sunete</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            color: #4a90e2;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+        }
+        p {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .sound-btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 25px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .sound-btn:hover {
+            background-color: #357abd;
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            p {
+                font-size: 1em;
+            }
+            .sound-btn {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            p {
+                font-size: 0.9em;
+            }
+            .sound-btn {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Repetare Sunete</h1>
+    <p>Apasă pe o literă pentru a reda sunetul și încearcă să-l repeți!</p>
+    <div id="container"></div>
+
+    <script>
+        const letters = [
+            'A', 'Ă', 'Â', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'Î', 'J', 'K', 
+            'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'Ș', 'T', 'Ț', 'U', 'V', 'W', 'X', 'Y', 'Z', 'CE', 'CI', 'GE', 'GI', 'CHE', 'CHI', 'GHE', 'GHI'
+        ];
+
+        const container = document.getElementById('container');
+
+        letters.forEach(letter => {
+            const button = document.createElement('button');
+            button.textContent = letter;
+            button.classList.add('sound-btn');
+            button.dataset.sound = letter.toLowerCase(); // Asociem sunetul cu litera mică (pentru fișier)
+            button.addEventListener('click', () => {
+                playAudio(letter);
+            });
+            container.appendChild(button);
+        });
+
+        function playAudio(letter) {
+            const audio = new Audio(`sunete/litere/${letter.toLowerCase()}.mp3`);
+            audio.play().catch(error => {
+                alert(`Fișierul audio pentru litera "${letter}" lipsește.`);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onomatopee</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #4caf50;
+            margin-bottom: 20px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .item {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            text-align: center;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .item:hover {
+            transform: scale(1.05);
+        }
+        .item img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .onomatopee {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4caf50;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .onomatopee {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Onomatopee</h1>
+    <div class="grid-container">
+        <div class="item" onclick="playSound('duck')">
+            <img src="imagini/onomatopee/duck.png" alt="Rață">
+            <p class="onomatopee">Mac Mac</p>
+        </div>
+        <div class="item" onclick="playSound('cat')">
+            <img src="imagini/onomatopee/cat.png" alt="Pisică">
+            <p class="onomatopee"">Miau</p>
+        </div>
+        <div class="item" onclick="playSound('dog')">
+            <img src="imagini/onomatopee/dog.png" alt="Câine">
+            <p class="onomatopee">Ham Ham</p>
+        </div>
+        <div class="item" onclick="playSound('bee')">
+            <img src="imagini/onomatopee/bee.png" alt="Albina">
+            <p class="onomatopee">Bzzz</p>
+        </div>
+        <div class="item" onclick="playSound('wind')">
+            <img src="imagini/onomatopee/wind.png" alt="Vânt">
+            <p class="onomatopee">Vjjjjj</p>
+        </div>
+        <div class="item" onclick="playSound('car')">
+            <img src="imagini/onomatopee/car.png" alt="Mașină">
+            <p class="onomatopee">Vruum</p>
+        </div>
+        <div class="item" onclick="playSound('capybara')">
+            <img src="imagini/onomatopee/capybara.png" alt="Capybara">
+            <p class="onomatopee">Iiiii iiii</p>
+        </div>
+        <div class="item" onclick="playSound('owl')">
+            <img src="imagini/onomatopee/owl.png" alt="Bufniță">
+            <p class="onomatopee">Buhuu Bu Buu</p>
+        </div>
+        <div class="item" onclick="playSound('lion')">
+            <img src="imagini/onomatopee/lion.png" alt="Leu">
+            <p class="onomatopee">Roaaar</p>
+        </div>
+        <div class="item" onclick="playSound('ring_dove')">
+            <img src="imagini/onomatopee/ring_dove.png" alt="Guguștiuc">
+            <p class="onomatopee">Guguștiuc</p>
+        </div>
+        <div class="item" onclick="playSound('hammer')">
+            <img src="imagini/onomatopee/hammer.png" alt="Ciocan">
+            <p class="onomatopee">Toc Toc</p>
+        </div>
+        <div class="item" onclick="playSound('train')">
+            <img src="imagini/onomatopee/train.png" alt="Tren">
+            <p class="onomatopee">Ciuu Ciuuu</p>
+        </div>
+
+
+        <div class="item" onclick="playSound('bear')">
+            <img src="imagini/onomatopee/bear.png" alt="Urs">
+            <p class="onomatopee">Moor</p>
+        </div>
+        <div class="item" onclick="playSound('chicken')">
+            <img src="imagini/onomatopee/chicken.png" alt="Pui">
+            <p class="onomatopee">Piu Piu</p>
+        </div>
+        <div class="item" onclick="playSound('rooster')">
+            <img src="imagini/onomatopee/rooster.png" alt="Cocoș">
+            <p class="onomatopee">Cucuriguu</p>
+        </div>
+        <div class="item" onclick="playSound('horse')">
+            <img src="imagini/onomatopee/horse.png" alt="Cal">
+            <p class="onomatopee">I-ha-ha</p>
+        </div>
+        <div class="item" onclick="playSound('door')">
+            <img src="imagini/onomatopee/door.png" alt="Ușă">
+            <p class="onomatopee">Cioc Cioc</p>
+        </div>
+        <div class="item" onclick="playSound('rain')">
+            <img src="imagini/onomatopee/rain.png" alt="Ploaie">
+            <p class="onomatopee">Pic Pic</p>
+        </div>
+        <div class="item" onclick="playSound('pig')">
+            <img src="imagini/onomatopee/pig.png" alt="Porc">
+            <p class="onomatopee">Guiiiț</p>
+        </div>
+        <div class="item" onclick="playSound('cow')">
+            <img src="imagini/onomatopee/cow.png" alt="Vacă">
+            <p class="onomatopee">Muu</p>
+        </div>
+        <div class="item" onclick="playSound('crow')">
+            <img src="imagini/onomatopee/crow.png" alt="Cioară">
+            <p class="onomatopee">Cra Cra</p>
+        </div>
+        <div class="item" onclick="playSound('clock')">
+            <img src="imagini/onomatopee/clock.png" alt="Ceas">
+            <p class="onomatopee">Tic Tac</p>
+        </div>
+        <div class="item" onclick="playSound('bell')">
+            <img src="imagini/onomatopee/bell.png" alt="Clopot">
+            <p class="onomatopee">Ding Dong</p>
+        </div>
+        <div class="item" onclick="playSound('airplane')">
+            <img src="imagini/onomatopee/airplane.png" alt="Avion">
+            <p class="onomatopee">Zuuuu</p>
+        </div>
+        <div class="item" onclick="playSound('monkey')">
+            <img src="imagini/onomatopee/monkey.png" alt="Lup">
+            <p class="onomatopee">Uaa Uaa</p>
+        </div>
+        <div class="item" onclick="playSound('wolf')"">
+            <img src="imagini/onomatopee/wolf.png" alt="Lup">
+            <p class="onomatopee">Auuuu</p>
+        </div>
+    </div>
+
+    <!-- Sunete -->
+    <!-- <audio id="sound-" src="sunete/onomatopee/"></audio> -->
+    <audio id="sound-cat" src="sunete/onomatopee/cat.mp3"></audio>
+    <audio id="sound-dog" src="sunete/onomatopee/dog.mp3"></audio>
+    <audio id="sound-bee" src="sunete/onomatopee/bee.mp3"></audio>
+    <audio id="sound-wind" src="sunete/onomatopee/wind.mp3"></audio>
+    <audio id="sound-car" src="sunete/onomatopee/car.mp3"></audio>
+    <audio id="sound-capybara" src="sunete/onomatopee/capybara.mp3"></audio>
+    <audio id="sound-train" src="sunete/onomatopee/train.mp3"></audio>
+    <audio id="sound-cow" src="sunete/onomatopee/cow.mp3"></audio>
+    <audio id="sound-rooster" src="sunete/onomatopee/rooster.mp3"></audio>
+    <audio id="sound-chicken" src="sunete/onomatopee/chicken.mp3"></audio>
+    <audio id="sound-ring_dove" src="sunete/onomatopee/ring_dove.mp3"></audio>
+    <audio id="sound-horse" src="sunete/onomatopee/horse.mp3"></audio>
+    <audio id="sound-door" src="sunete/onomatopee/door.mp3"></audio>
+    <audio id="sound-monkey" src="sunete/onomatopee/monkey.mp3"></audio>
+    <audio id="sound-clock" src="sunete/onomatopee/clock.mp3"></audio>
+    <audio id="sound-rain" src="sunete/onomatopee/rain.mp3"></audio>
+    <audio id="sound-lion" src="sunete/onomatopee/lion.mp3"></audio>
+    <audio id="sound-pig" src="sunete/onomatopee/pig.mp3"></audio>
+    <audio id="sound-crow" src="sunete/onomatopee/crow.mp3"></audio>
+    <audio id="sound-bell" src="sunete/onomatopee/bell.mp3"></audio> 
+    <audio id="sound-hammer" src="sunete/onomatopee/hammer.mp3"></audio>
+    <audio id="sound-bear" src="sunete/onomatopee/bear.mp3"></audio>
+    <audio id="sound-airplane" src="sunete/onomatopee/airplane.mp3"></audio>
+    <audio id="sound-owl" src="sunete/onomatopee/owl.mp3"></audio>
+
+
+
+    <audio id="sound-duck" src="sunete/onomatopee/duck.mp3"></audio>
+    <audio id="sound-wolf" src="sunete/onomatopee/wolf.mp3"></audio>
+
+
+
+    <script>
+        function playSound(animal) {
+            const sound = document.getElementById(`sound-${animal}`);
+            if (sound) {
+                sound.currentTime = 0; // Resetează sunetul
+                sound.play();
+            }
+        }
+    </script>
+</body>
+</html>

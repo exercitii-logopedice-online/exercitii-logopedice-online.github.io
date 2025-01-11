@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascultă Sunetul</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #4a90e2;
+            margin: 20px 0;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .sound-button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            color: white;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+        .sound-button:hover {
+            background-color: #388e3c;
+        }
+        .images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .image {
+            background-color: #fff0f5;
+            border: 2px solid #ffc0cb;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .image img {
+            max-width: 100px;
+            border-radius: 10px;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .sound-button {
+                font-size: 1.2em;
+                padding: 10px 20px;
+            }
+            .image img {
+                max-width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Ascultă Sunetul</h1>
+    <p>Ascultă sunetul și alege imaginea corectă (cuvântul din imagine să înceapă cu sunetul respectiv)!</p>
+    <button class="sound-button" onclick="playSound()">Ascultă Sunetul</button>
+    <div class="images" id="image-container"></div>
+    <div class="feedback" id="feedback"></div>
+
+    <audio id="sound"></audio>
+    <audio id="correct-sound" src="sunete/correct.mp3"></audio>
+    <audio id="incorrect-sound" src="sunete/incorrect.mp3"></audio>
+
+    <script>
+        const sounds = [
+            { letter: "A", sound: "sunete/litere/a.mp3", images: ["imagini/mar.png", "imagini/avion.png", "imagini/banane.png"], correct: 1 },
+            { letter: "B", sound: "sunete/litere/b.mp3", images: ["imagini/balon.png", "imagini/fluture.png", "imagini/casa.png"], correct: 0 },
+            { letter: "C", sound: "sunete/litere/c.mp3", images: ["imagini/casa.png", "imagini/masina.png", "imagini/vulpe.png"], correct: 0 },
+            { letter: "M", sound: "sunete/litere/m.mp3", images: ["imagini/mar.png", "imagini/casa.png", "imagini/balon.png"], correct: 0 },
+            { letter: "P", sound: "sunete/litere/p.mp3", images: ["imagini/pisica.png", "imagini/avion.png", "imagini/vulpe.png"], correct: 0 },
+            { letter: "F", sound: "sunete/litere/f.mp3", images: ["imagini/fluture.png", "imagini/masina.png", "imagini/robot.png"], correct: 0 },
+            { letter: "R", sound: "sunete/litere/r.mp3", images: ["imagini/fluture.png", "imagini/vulpe.png", "imagini/robot.png"], correct: 2 },
+            { letter: "Z", sound: "sunete/litere/z.mp3", images: ["imagini/robot.png", "imagini/zebra.png", "imagini/testoasa.png"], correct: 1 },
+            { letter: "Ș", sound: "sunete/litere/ș.mp3", images: ["imagini/soare.png", "imagini/sarpe.png", "imagini/carte.png"], correct: 1 },
+            { letter: "G", sound: "sunete/litere/g.mp3", images: ["imagini/bufnita.png", "imagini/floare.png", "imagini/gasca.png"], correct: 2 },
+            { letter: "S", sound: "sunete/litere/s.mp3", images: ["imagini/soare.png", "imagini/urs.png", "imagini/fantana.png"], correct: 0 },
+            { letter: "L", sound: "sunete/litere/l.mp3", images: ["imagini/cirese.png", "imagini/lampa.png", "imagini/branza.png"], correct: 1 },
+            { letter: "M", sound: "sunete/litere/m.mp3", images: ["imagini/nufar.png", "imagini/pere.png", "imagini/morcov.png"], correct: 2 },
+            { letter: "N", sound: "sunete/litere/n.mp3", images: ["imagini/fluture.png", "imagini/nufar.png", "imagini/albina.png"], correct: 1 },
+            { letter: "R", sound: "sunete/litere/r.mp3", images: ["imagini/rata.png", "imagini/balon.png", "imagini/zebra.png"], correct: 0 },
+            { letter: "U", sound: "sunete/litere/u.mp3", images: ["imagini/pisica.png", "imagini/albina.png", "imagini/urs.png"], correct: 2 }
+        ];
+
+        let currentSoundIndex = 0;
+
+        const soundElement = document.getElementById("sound");
+        const feedbackElement = document.getElementById("feedback");
+        const imageContainer = document.getElementById("image-container");
+        const correctSound = document.getElementById("correct-sound");
+        const incorrectSound = document.getElementById("incorrect-sound");
+
+        // Randomizează array-ul
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function loadSound() {
+            const currentSound = sounds[currentSoundIndex];
+            soundElement.src = currentSound.sound;
+            feedbackElement.textContent = "";
+            loadImages(currentSound);
+        }
+
+        function playSound() {
+            soundElement.play();
+        }
+
+        function loadImages(sound) {
+            imageContainer.innerHTML = "";
+            const shuffledImages = shuffle(sound.images.map((img, index) => ({ img, index })));
+            shuffledImages.forEach(({ img, index }) => {
+                const imgElement = document.createElement("div");
+                imgElement.className = "image";
+                imgElement.innerHTML = `<img src="${img}" alt="Imagine">`;
+
+                imgElement.addEventListener("click", () => checkAnswer(index));
+                imageContainer.appendChild(imgElement);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const currentSound = sounds[currentSoundIndex];
+            if (selectedIndex === currentSound.correct) {
+                feedbackElement.textContent = "Corect! Ai ales imaginea potrivită.";
+                feedbackElement.style.color = "green";
+                correctSound.play();
+                nextSound();
+            } else {
+                feedbackElement.textContent = "Greșit! Încearcă din nou.";
+                feedbackElement.style.color = "red";
+                incorrectSound.play();
+            }
+        }
+
+        function nextSound() {
+            setTimeout(() => {
+                currentSoundIndex = (currentSoundIndex + 1) % sounds.length;
+                loadSound();
+            }, 2000);
+        }
+
+        // Inițializare
+        loadSound();
+    </script>
+</body>
+</html>

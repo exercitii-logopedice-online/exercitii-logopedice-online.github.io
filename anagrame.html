@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Joc Anagrame</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9fb;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        #anagram-container {
+            margin: 20px auto;
+            max-width: 600px;
+        }
+        #word-image {
+            max-width: 100%;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .scrambled-word,
+        .drop-zone {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f4f4f4;
+            min-height: 60px;
+            border: 2px dashed #ccc;
+        }
+        .letter {
+            display: inline-block;
+            background-color: #ffc0cb;
+            border: 2px solid #ff6f61;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .letter:hover {
+            transform: scale(1.1);
+        }
+        .letter.dragging {
+            opacity: 0.5;
+        }
+        .button {
+            margin: 10px 10px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #388e3c;
+        }
+        .button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .letter {
+                font-size: 1.2em;
+                padding: 8px 12px;
+            }
+            .scrambled-word,
+            .drop-zone {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Joc Anagrame</h1>
+    <p>Aranjează literele în ordinea corectă și apasă pe butonul „Verifică”.</p>
+    <div id="anagram-container">
+        <img id="word-image" src="" alt="Imagine sugestivă">
+        <div class="scrambled-word" id="scrambled-word"></div>
+        <div class="drop-zone" id="drop-zone"></div>
+    </div>
+    <button class="button" id="prev-word" onclick="prevWord()" disabled>Înapoi</button>
+    <button class="button" onclick="checkWord()">Verifică</button>
+    <button class="button" id="next-word" onclick="nextWord()">Următorul</button>
+    <div id="feedback"></div>
+    <audio id="correct-sound" src="sunete/correct.mp3"></audio>
+    <audio id="incorrect-sound" src="sunete/incorrect.mp3"></audio>
+
+    <script>
+        const words = [
+            { word: "MASĂ", image: "imagini/masa.png" },
+            { word: "CASĂ", image: "imagini/casa.png" },
+            { word: "VULPE", image: "imagini/vulpe.png" },
+            { word: "ALBINĂ", image: "imagini/albina.png" },
+            { word: "PISICĂ", image: "imagini/pisica.png" },
+            { word: "FLUTURE", image: "imagini/fluture.png" },
+            { word: "URS", image: "imagini/urs.png" },
+            { word: "CĂȚEL", image: "imagini/catel.png" },
+            { word: "RAȚĂ", image: "imagini/rata.png" },
+            { word: "MORCOV", image: "imagini/morcov.png" },
+            { word: "GÂSCĂ", image: "imagini/gasca.png" }, 
+            { word: "BROASCĂ", image: "imagini/broasca.png" },
+            { word: "LUP", image: "imagini/onomatopee/wolf.png" },
+            { word: "LEU", image: "imagini/onomatopee/lion.png" },
+            { word: "FOARFECĂ", image: "imagini/foarfeca.png" },
+            { word: "ZEBRĂ", image: "imagini/zebra.png"},
+            { word: "ȘARPE", image: "imagini/sarpe.png"},
+            { word: "LAPTE", image: "imagini/lapte.png"},
+            { word:"NUFĂR", image: "imagini/nufar.png"},
+            { word: "BRÂNZĂ", image: "imagini/branza.png"},
+            { word: "FLOARE", image: "imagini/floare.png"},
+            { word: "CARTE", image: "imagini/carte.png"},
+            { word: "BANANE", image: "imagini/banane.png"},
+            { word: "CIREȘE", image: "imagini/cirese.png"},
+            { word: "MĂR", image: "imagini/mar.png"},
+            { word: "PERE", image: "imagini/pere.png"},
+            { word: "LAMPA", image: "imagini/lampa.png"},
+            { word: "CĂRUȚ", image: "imagini/carut.png"},
+            { word: "SOARE", image: "imagini/soare.png"},
+            { word: "FÂNTÂNĂ", image: "imagini/fantana.png"},
+        ];
+
+
+        let currentIndex = 0;
+        let currentWord = "";
+        const scrambledWordContainer = document.getElementById("scrambled-word");
+        const dropZone = document.getElementById("drop-zone");
+        const feedback = document.getElementById("feedback");
+        const correctSound = document.getElementById("correct-sound");
+        const incorrectSound = document.getElementById("incorrect-sound");
+        const prevButton = document.getElementById("prev-word");
+        const nextButton = document.getElementById("next-word");
+        const wordImage = document.getElementById("word-image");
+
+        function shuffle(word) {
+            let shuffled;
+            do {
+                shuffled = word.split("").sort(() => Math.random() - 0.5).join("");
+            } while (shuffled === word);
+            return shuffled;
+        }
+
+        function updateNavigationButtons() {
+            prevButton.disabled = currentIndex === 0;
+            nextButton.disabled = currentIndex === words.length - 1;
+        }
+
+        function startGame() {
+            currentWord = words[currentIndex].word;
+            const scrambled = shuffle(currentWord);
+            wordImage.src = words[currentIndex].image;
+            wordImage.alt = `Imagine pentru ${currentWord}`;
+
+            scrambledWordContainer.innerHTML = "";
+            dropZone.innerHTML = "";
+            feedback.textContent = "";
+
+            scrambled.split("").forEach(letter => {
+                const letterElement = document.createElement("div");
+                letterElement.textContent = letter;
+                letterElement.className = "letter";
+                letterElement.draggable = true;
+
+                letterElement.addEventListener("dragstart", () => {
+                    letterElement.classList.add("dragging");
+                });
+
+                letterElement.addEventListener("dragend", () => {
+                    letterElement.classList.remove("dragging");
+                });
+
+                letterElement.addEventListener("click", () => {
+                    if (letterElement.parentElement === dropZone) {
+                        scrambledWordContainer.appendChild(letterElement);
+                    } else {
+                        dropZone.appendChild(letterElement);
+                    }
+                });
+
+                scrambledWordContainer.appendChild(letterElement);
+            });
+
+            updateNavigationButtons();
+        }
+
+        function checkWord() {
+            const formedWord = Array.from(dropZone.children)
+                .map(child => child.textContent)
+                .join("");
+
+            if (formedWord === currentWord) {
+                feedback.textContent = `Corect! Cuvântul este „${currentWord}”.`;
+                feedback.style.color = "green";
+                correctSound.play();
+            } else {
+                feedback.textContent = `Greșit! Ai format „${formedWord}”. Încearcă din nou.`;
+                feedback.style.color = "red";
+                incorrectSound.play();
+            }
+        }
+
+        function nextWord() {
+            if (currentIndex < words.length - 1) {
+                currentIndex++;
+                startGame();
+            }
+        }
+
+        function prevWord() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                startGame();
+            }
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
